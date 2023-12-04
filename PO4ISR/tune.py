@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     with open(f"../Dataset/{conf['dataset']}/Text/train_{conf['train_num']}.json", 'r') as json_file:
         train_data = json.load(json_file)
-    with open(f"../Dataset/{conf['dataset']}/Text/valid_100.json", 'r') as json_file:
+    with open(f"../Dataset/{conf['dataset']}/Text/valid.json", 'r') as json_file:
         val_data = json.load(json_file)
 
     beam_candidate = []
