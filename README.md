@@ -8,7 +8,18 @@ pip install -r requirements.txt
 ```
 
 ## Datasets
-We adopt three real-world datasets from various domains: [MovieLens-1M](https://grouplens.org/datasets/movielens/1m/), [Games](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html) and [Bundle](https://github.com/BundleRec/bundle_recommendation) dataset. You can find the datasets used in the experiment under the `Dataset` directory. Each dataset includes both its ID and text forms. In addition to providing a small subset of training data versions, we also provide full versions of the training data.
+We adopt three real-world datasets from various domains: [MovieLens-1M](https://grouplens.org/datasets/movielens/1m/), [Games](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html) and [Bundle](https://github.com/BundleRec/bundle_recommendation) dataset. You can find the datasets used in the experiment under the `Dataset` directory. Each dataset includes both its ID and text format. In addition to providing a small subset of training data versions, we also provide full versions of the training data under the `Dataset` directory.
+### ID-Formatted dataset
+* `train_sample_xx.npy`: Randomly select xx sessions from the full version of the training dataset as the training set. xx can be 50 and 150.
+* `train.npy`: Full version of the training data.
+* `valid.npy`: Validation set.
+* `valid_candidate.npy`: The candidate set corresponding to each data in the validation set.
+* `test.npy`: Test set.
+* `test_candidate_xx.npy`: The candidate sets constructed by 5 different random seeds, corresponding to each data in the test set. xx can be 0, 10, 42, 625, 2023.
+### Text-Formatted dataset
+* `train_xx.json`: The training set in text format corresponding to the `train_sample_xx.npy` file in ID format.
+* `valid.json`: The validation set in text format corresponding to the `valid.npy` and `valid_candidate.npy` file in ID format.
+* `test_seed_xx.json`: The test set in text format corresponding to the `test.npy` and `test_candidate_xx.npy` file in ID format.
 ## PO4ISR
 ### Tune
 The `tune.py` corresponds to the process of prompt optimization. Before running the code, you need to fill in your OpenAI API token in the `./PO4ISR/assets/openai.yaml` file and wandb token in the `./PO4ISR/assets/overall.yaml` file. 
@@ -20,7 +31,8 @@ The `test.py` file corresponds to the evaluation of the prompt.
 ```
 python test.py --dataset='dataset name' --seed='value of the seed'
 ```
-The top 1/2 optimized prompts for the three domains can be found in the `prompts.py`. If you want to test the results with these prompts, you can replace them in the `test.py`.
+Note that all the optimal prompts are saved in the `prompt.py` file. If you want to test the results with these prompts, you can replace them in the `test.py`.
+<!-- The top 1/2 optimized prompts for the three domains can be found in the `prompts.py`. If you want to test the results with these prompts, you can replace them in the `test.py`. -->
 
 ## NIR
 ```
@@ -28,12 +40,10 @@ python test.py --dataset='dataset name' --seed='value of the seed' --api_key='yo
 ```
 ## Conventional methods
 ### Parameter Tuning and Settings for Conventional methods
-We use [Optuna](https://optuna.org/) to automatically find out the optimal hyperparameters of all methods with 50 trails. The search space for item embedding size,learning rate, and batch size are {32, 64, 128}, {10−4, 10−3, 10−2} and {64, 128, 256}, respectively. For SKNN, 𝐾 is searched from
-{50, 100, 150}. For NARM, the hidden size and layers are searched in [50, 200] stepped by 50 and in {1, 2, 3}, respectively. For GCE-GNN, the number of hops, and the dropout rate for global and local aggregators are respectively searched in {1, 2}, [0, 0.8] stepped by 0.2,
-and {0, 0.5}. For MCPRN, 𝜏 and the number of purpose channels are separately searched in {0.01, 0.1, 1, 10} and {1, 2, 3, 4}. For HIDE, the number of factors is searched in {1, 3, 5, 7, 9}; the regularization and balance weights are searched in {10−5, 10−4, 10−3, 10−2}; the window size is searched in [1, 10] stepped by 1; and the sparsity
-coefficient is set as 0.4. For Atten-Mixer, the intent level 𝐿 and the number of attention heads are respectively searched in [1, 10] stepped by 1 and in {1, 2, 4, 8}. The optimal parameter settings are shown in Table 1.
+We use [Optuna](https://optuna.org/) to automatically find out the optimal hyperparameters of all methods with 50 trails. The item embedding size is searched from {32, 64, 128}; learning rate is searched from {10−4, 10−3, 10−2}; batch size is searched from {64, 128, 256} and we use an early stop mechanism to halt the model training, with a maximum of 100 epochs. For SKNN, 𝐾 is searched from {50, 100, 150}. For NARM, the hidden size is searched in [50, 200] stepped by 50 and layers is searched in {1, 2, 3}. For GCE-GNN, the number of hops is searched in {1, 2}; the dropout rate for global aggregators is searched in [0, 0.8] stepped by 0.2 and the dropout rate for local aggregators is searched in {0, 0.5}. For MCPRN, 𝜏 is searched in {0.01, 0.1, 1, 10} and the number of purpose channels is searched in {1, 2, 3, 4}. For HIDE, the number of factors is searched in {1, 3, 5, 7, 9}; the regularization and balance weights are searched in {10−5, 10−4, 10−3, 10−2}; the window size is searched in [1, 10] stepped by 1; and the sparsity coefficient is set as 0.4. For Atten-Mixer, the intent level 𝐿 is searched in [1, 10] stepped by 1 and the number of attention heads is searched in {1, 2, 4, 8}. The optimal parameter settings are shown in Table 1.
 
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Table 1: Parameter settings for Conventional methods.
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Table 1: Parameter settings for Non-LLM baselines.
 
 |  | Bundle | ML-1M | Games |
 | :------: | :------: | :------: | :------: |
