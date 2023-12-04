@@ -87,7 +87,7 @@ Model_setting = {
         'n_layers':1
     },
     'FPMC': {
-        'model_dir': 'conventions',
+        'model_dir': 'fpmc',
         'dataloader':'NARMDataset',
         'lr_dc': 0.1,
         'lr_dc_step': 3,

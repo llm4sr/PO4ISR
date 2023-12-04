@@ -11,7 +11,7 @@ from sess.utils.metrics import accuracy_calculator
 from sess.model.gcegnn import CombineGraph
 from sess.model.hide import HIDE
 from sess.model.attenMixer import AreaAttnModel
-from sess.model.conventions import MostPop
+from sess.model.mostpop import MostPop
 from sess.model.sknn import SessionKNN
 
 from config import Model_setting, Dataset_setting, Best_setting
@@ -25,7 +25,7 @@ def init_seed(seed=None):
     torch.cuda.manual_seed_all(seed)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default='bundle', help='amazon/games/ml1m')
+parser.add_argument('--dataset', default='bundle', help='bundle/games/ml-1m')
 parser.add_argument('--model', default='FPMC', help='MCPRN/STAMP/NARM/GCE-GNN/FPMC/HIDE/MostPop/SKNN')
 parser.add_argument('--seed', type=int, default=2023, help='0, 10, 42, 625, 2023')
 parser.add_argument('--sample_num', type=int, default=50, help='50, 150')
