@@ -38,12 +38,12 @@ Note that all the optimal prompts are saved in the `prompt.py` file. If you want
 ```
 python test.py --dataset='dataset name' --seed='value of the seed' --api_key='your OpenAI API token'
 ```
-## Non-LLM-baselines
-### Parameter Tuning and Settings for Non-LLM-baselines
+## Non-LLM-Baselines
+### Parameter Tuning and Settings for Non-LLM-Baselines
 We use [Optuna](https://optuna.org/) to automatically find out the optimal hyperparameters of all methods with 50 trails. The item embedding size is searched from {32, 64, 128}; learning rate is searched from {10−4, 10−3, 10−2}; batch size is searched from {64, 128, 256} and we use an early stop mechanism to halt the model training, with a maximum of 100 epochs. For SKNN, 𝐾 is searched from {50, 100, 150}. For NARM, the hidden size is searched in [50, 200] stepped by 50 and layers is searched in {1, 2, 3}. For GCE-GNN, the number of hops is searched in {1, 2}; the dropout rate for global aggregators is searched in [0, 0.8] stepped by 0.2 and the dropout rate for local aggregators is searched in {0, 0.5}. For MCPRN, 𝜏 is searched in {0.01, 0.1, 1, 10} and the number of purpose channels is searched in {1, 2, 3, 4}. For HIDE, the number of factors is searched in {1, 3, 5, 7, 9}; the regularization and balance weights are searched in {10−5, 10−4, 10−3, 10−2}; the window size is searched in [1, 10] stepped by 1; and the sparsity coefficient is set as 0.4. For Atten-Mixer, the intent level 𝐿 is searched in [1, 10] stepped by 1 and the number of attention heads is searched in {1, 2, 4, 8}. The optimal parameter settings are shown in Table 1.
 
 
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Table 1: Parameter settings for Non-LLM baselines.
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Table 1: Parameter settings for Non-LLM-Baselines.
 
 |  | Bundle | ML-1M | Games |
 | :------: | :------: | :------: | :------: |
@@ -67,5 +67,5 @@ python test.py --dataset='dataset name' --model='model name' --seed='value of th
 ```
 ## Acknowledgment
 We refer to the following repositories to improve our code:
-* Conventional methods part with [Understanding-Diversity-in-SBRSs](https://github.com/qyin863/Understanding-Diversity-in-SBRSs)
-* NIR parts with [LLM-Next-Item-Rec](https://github.com/AGI-Edgerunners/LLM-Next-Item-Rec)
+* Non-LLM-Baselines part with [Understanding-Diversity-in-SBRSs](https://github.com/qyin863/Understanding-Diversity-in-SBRSs)
+* LLM-Baseline-NIR parts with [LLM-Next-Item-Rec](https://github.com/AGI-Edgerunners/LLM-Next-Item-Rec)
