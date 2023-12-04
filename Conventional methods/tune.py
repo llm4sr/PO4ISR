@@ -33,7 +33,7 @@ parser.add_argument('--seed', type=int, default=2023)
 parser.add_argument('--sample_num', type=int, default=50, help='50, 150')
 parser.add_argument('--topK', type=int, default=5)
 parser.add_argument('--gpu', type=str, default='0')
-parser.add_argument('--trials', type=int, default=30)
+parser.add_argument('--trials', type=int, default=50)
 
 opt = parser.parse_args()
 init_seed(opt.seed)
