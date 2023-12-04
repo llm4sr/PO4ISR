@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ```
 
 ## Datasets
-We adopt three real-world datasets from various domains: [MovieLens-1M](https://grouplens.org/datasets/movielens/1m/), [Games](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html) and [Bundle](https://github.com/BundleRec/bundle_recommendation) dataset. You can find the datasets used in the experiment under the `Dataset` directory. Each dataset includes both its ID and text format. In addition to providing a small subset of training data versions, we also provide full versions of the training data under the `Dataset` directory.
+We adopt three real-world datasets from various domains: [MovieLens-1M](https://grouplens.org/datasets/movielens/1m/), [Games](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html) and [Bundle](https://github.com/BundleRec/bundle_recommendation). You can find the datasets used in the experiment under the `Dataset` directory. Each dataset includes both its ID and text format. In addition to providing the randomly-sampled training data, we also provide full versions of the training data under the `Dataset` directory.
 ### ID-Formatted Dataset
 * `train_sample_x.npy`: randomly select x sessions from the full version of the training dataset as the training set. x can be 50 or 150.
 * `train.npy`: full version of the training data.
