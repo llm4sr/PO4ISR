@@ -12,14 +12,14 @@ We adopt three real-world datasets from various domains: [MovieLens-1M](https://
 ### ID-Formatted Dataset
 * `train_sample_x.npy`: randomly select x sessions from the full version of the training dataset as the training set. x can be 50 or 150.
 * `train.npy`: full version of the training data.
-* `valid.npy`: validation set.
+* `valid.npy`: the validation set containing all validation sessions.
 * `valid_candidate.npy`: the candidate set corresponding to each session in the validation set.
-* `test.npy`: test set.
+* `test.npy`: test set containing all test sessions.
 * `test_candidate_x.npy`: the candidate sets constructed by 5 different random seeds, corresponding to each session in the test set. x can be 0, 10, 42, 625 or 2023.
 ### Text-Formatted Dataset
 * `train_x.json`: the training set in text format corresponding to the `train_sample_x.npy` file in ID format.
-* `valid.json`: the validation set in text format corresponding to the `valid.npy` and `valid_candidate.npy` file in ID format.
-* `test_seed_x.json`: the test set in text format corresponding to the `test.npy` and `test_candidate_x.npy` file in ID format.
+* `valid.json`: the validation set in text format containing both validation sessions and the candidates, which corresponds to the `valid.npy` and `valid_candidate.npy` file in ID format.
+* `test_seed_x.json`: the test set in text format containing both test sessions and the candidates, which corresponds to the `test.npy` and `test_candidate_x.npy` file in ID format.
 
 ## PO4ISR
 ### Tune
