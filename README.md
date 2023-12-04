@@ -28,7 +28,7 @@ python test.py --dataset='dataset name' --seed='value of the seed' --api_key='yo
 ```
 ## Conventional methods
 ### Parameter Tuning and Settings for Conventional methods
-We use [Optuna](https://optuna.org/) to automatically find out the optimal hyperparameters of all methods with 30 trails. The search space for item embedding size,learning rate, and batch size are {32, 64, 128}, {10−4, 10−3, 10−2} and {64, 128, 256}, respectively. For SKNN, 𝐾 is searched from
+We use [Optuna](https://optuna.org/) to automatically find out the optimal hyperparameters of all methods with 50 trails. The search space for item embedding size,learning rate, and batch size are {32, 64, 128}, {10−4, 10−3, 10−2} and {64, 128, 256}, respectively. For SKNN, 𝐾 is searched from
 {50, 100, 150}. For NARM, the hidden size and layers are searched in [50, 200] stepped by 50 and in {1, 2, 3}, respectively. For GCE-GNN, the number of hops, and the dropout rate for global and local aggregators are respectively searched in {1, 2}, [0, 0.8] stepped by 0.2,
 and {0, 0.5}. For MCPRN, 𝜏 and the number of purpose channels are separately searched in {0.01, 0.1, 1, 10} and {1, 2, 3, 4}. For HIDE, the number of factors is searched in {1, 3, 5, 7, 9}; the regularization and balance weights are searched in {10−5, 10−4, 10−3, 10−2}; the window size is searched in [1, 10] stepped by 1; and the sparsity
 coefficient is set as 0.4. For Atten-Mixer, the intent level 𝐿 and the number of attention heads are respectively searched in [1, 10] stepped by 1 and in {1, 2, 4, 8}. The optimal parameter settings are shown in Table 1.
