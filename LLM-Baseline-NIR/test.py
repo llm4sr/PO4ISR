@@ -4,6 +4,7 @@ import openai
 import random 
 import argparse
 import re
+import os
 from metric import Metric
 from tqdm import tqdm
 
@@ -162,7 +163,11 @@ for data in tqdm(test_data):
                    "Predictions": predictions,
                    'Hit': hit_}
     results_data.append(result_json)
-file_dir = f"./res/{args.dataset}/seed_{args.seed}.json"
+
+res_dir = f'./res/{args.dataset}/'
+if not os.path.exists(res_dir):
+    os.makedirs(res_dir)
+file_dir = f"{res_dir}/seed_{args.seed}.json"
 write_json(results_data, file_dir)
 
 rank_list = []
