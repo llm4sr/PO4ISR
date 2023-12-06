@@ -5,7 +5,7 @@ def parse_args():
     parser.add_argument('--reward_func', 
                         type=str,
                         default='ndcg',
-                        help='how the reward is calculated, options: cos_similarity/ndcg')
+                        help='how the reward is calculated, options: ndcg')
     parser.add_argument('--model', 
                         type=str,
                         default='gpt-3.5-turbo',
@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('--train_num', 
                         type=int,
                         default=50,
-                        help='options: 50,100,150')
+                        help='options: 50,150')
     parser.add_argument('--batch_size', 
                         type=int,
                         default=16,

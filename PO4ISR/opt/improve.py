@@ -33,7 +33,7 @@ class Improve():
         similar_prompts = []
         for prompt in prompt_list:
             tmp = self.augumenting_prompts
-            content = tmp.replace("$prompt_instruction$", prompt)
+            content = tmp.replace("$refined_prompt$", prompt)
             for i in range(self.config['addition_sample']):
                 response = self.request.request(user=content, system='')
                 similar_prompts.append(response)
@@ -50,7 +50,7 @@ class Improve():
         except:
             errors_group = errors_list
         inferring_reasons = self.inferring_reasons.replace("$prompt$", prompt).replace("$num_feedbacks$", str(self.config['num_feedbacks'])) 
-        refining_prompts = self.refining_prompts.replace("$prompt$", prompt).replace("$steps_per_gradient$", str(self.config['steps_per_gradient']))
+        refining_prompts = self.refining_prompts.replace("$prompt$", prompt)
         
         for error in errors_group:
             # Inferring reasons for errors
@@ -61,7 +61,7 @@ class Improve():
             # Refining prompts with reasons
             tmp_prompt = refining_prompts
             tmp_prompt = tmp_prompt.replace("$error_case$", error['input']) #error['output'] --> error['input']
-            content = tmp_prompt.replace("$gradient$", gradient)
+            content = tmp_prompt.replace("$reasons$", gradient)
             edit_prompt = self.request.request(user=content, system='')
             edit_prompt_list = extract_edit_prompt(edit_prompt)
 
@@ -72,7 +72,7 @@ class Improve():
             candidate_prompts.extend(edit_prompt_list)
             candidate_prompts.extend(similar_prompts)
             
-            # add data into wandb Text Table [input, prompt, reason, new prompt, mc prompt]
+            # add data into wandb Text Table [input, prompt, reason, improved prompt, augumented prompt]
             if self.config['use_wandb']:
                 for new_index, new_prompt in enumerate(edit_prompt_list):
                     for mc_index in range(self.config['addition_sample']):

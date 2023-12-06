@@ -40,13 +40,13 @@ if __name__ == '__main__':
     refining_prompts = "I'm trying to write a zero-shot recommender prompt.\n"\
                        "My current prompt is \"$prompt$\"\n"\
                        "But this prompt gets the following example wrong: $error_case$\n"\
-                       "Based on these example the problem with this prompt is that $gradient$.\n"\
-                       "Based on the above information, please wrote one improved prompts.\n"\
-                       "Each prompt is wrapped with <START> and <END>.\n"\
-                       "The $steps_per_gradient$ new prompts are:"
+                       "Based on these example the problem with this prompt is that $reasons$.\n"\
+                       "Based on the above information, please wrote one improved prompt.\n"\
+                       "The prompt is wrapped with <START> and <END>.\n"\
+                       "The new prompt is:"
 
     augumenting_prompts = "Generate a variation of the following instruction while keeping the semantic meaning.\n"\
-                          "Input: $prompt_instruction$\n"\
+                          "Input: $refined_prompt$\n"\
                           "Output:"
 
     conf = init_config()
