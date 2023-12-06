@@ -61,7 +61,7 @@ def test():
     elif opt.model in ['NARM','FPMC','STAMP','MCPRN']:
         train_dataset = train_dataset.get_loader(model_config, shuffle=True)
         test_dataset = test_dataset.get_loader(model_config, shuffle=False)
-        model = getattr(importlib.import_module('seren.model.{}'.format(model_config['model_dir'])), opt.model, None)
+        model = getattr(importlib.import_module('sess.model.{}'.format(model_config['model_dir'])), opt.model, None)
         model = model(data_config['num_node'], model_config, logger)
     elif opt.model in ['GCE-GNN']:
         adj, num = build_graph(train_data, data_config, model_config)

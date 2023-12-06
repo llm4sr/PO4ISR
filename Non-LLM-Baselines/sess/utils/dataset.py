@@ -6,17 +6,7 @@ from .functions import pad_zero_for_seq, build_seqs, get_seq_from_df, build_seqs
 
 
 class NARMDataset(Dataset):
-    def __init__(self, data, conf, candidate_set=None, isTrain=True):
-        '''
-        Session sequences dataset class
-
-        Parameters
-        ----------
-        data : pd.DataFrame
-            dataframe by Data.py
-        logger : logging.logger
-            Logger used for recording process
-        '''     
+    def __init__(self, data, conf, candidate_set=None, isTrain=True):  
         # self.data is list of [[seqs],[targets]]   
         self.data = build_seqs_NoID(data, conf['session_len'], isTrain=isTrain)
         self.candidate_set = candidate_set
