@@ -5,7 +5,9 @@ __pycache__/
 .DS_Store
 # C extensions
 *.so
-
+.DS_Store
+Dataset_new/
+Process.ipynb
 # Distribution / packaging
 .Python
 build/
