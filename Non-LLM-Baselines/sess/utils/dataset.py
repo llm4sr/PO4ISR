@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import scipy.sparse as sp 
 from torch.utils.data import Dataset, DataLoader, BatchSampler, SequentialSampler
-from functions import pad_zero_for_seq, build_seqs, get_seq_from_df, build_seqs_NoID
+from .functions import pad_zero_for_seq, build_seqs, get_seq_from_df, build_seqs_NoID
 
 
 class NARMDataset(Dataset):

@@ -2,6 +2,7 @@ import torch
 import argparse
 import time
 import importlib
+import os
 import numpy as np
 
 from sess.utils.utils import get_logger, ACC_KPI
@@ -25,11 +26,11 @@ def init_seed(seed=None):
     torch.cuda.manual_seed_all(seed)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default='bundle', help='bundle/games/ml-1m')
-parser.add_argument('--model', default='FPMC', help='MCPRN/STAMP/NARM/GCE-GNN/FPMC/HIDE/MostPop/SKNN')
-parser.add_argument('--seed', type=int, default=2023, help='0, 10, 42, 625, 2023')
+parser.add_argument('--dataset', default='ml-1m', help='bundle/games/ml-1m')
+parser.add_argument('--model', default='MostPop', help='MCPRN/STAMP/NARM/GCE-GNN/FPMC/HIDE/MostPop/SKNN')
+parser.add_argument('--seed', type=int, default=0, help='0, 10, 42, 625, 2023')
 parser.add_argument('--sample_num', type=int, default=50, help='50, 150')
-
+parser.add_argument('--gpu', type=str, default='0')
 opt = parser.parse_args()
 init_seed(opt.seed)
 
@@ -44,15 +45,19 @@ def test():
     best_settings = Best_setting[opt.model][opt.dataset]
     model_config = {**model_config, **best_settings}
     model_config['gpu'] = opt.gpu
-    logger = get_logger(f'tune_{model_config["description"]}_{opt.dataset}')
+    logger = get_logger(f'test_{model_config["description"]}_{opt.dataset}')
+    if opt.model not in ['MostPop', 'SKNN']:
+        dataloader = getattr(importlib.import_module('sess.utils.dataset'), model_config['dataloader'], None)
+        train_dataset = dataloader(train_data, model_config)
+        test_dataset = dataloader(test_data, model_config, candidate_set=candidate_data, isTrain=False)
+    else:
+        train_dataset = train_data
+        test_dataset = test_data
 
-    dataloader = getattr(importlib.import_module('seren.utils.dataset'), model_config['dataloader'], None)
-    train_dataset = dataloader(train_data, model_config)
-    test_dataset = dataloader(test_data, model_config, candidate_set=candidate_data, isTrain=False)
     if opt.model == 'MostPop':
-        model = MostPop(pop_n=100, logger=None)
+        model = MostPop(pop_n=model_config['pop_n'], logger=None)
     elif opt.model == 'SKNN':
-        model = SessionKNN(train_data, test_data, {'n': 50}, None)
+        model = SessionKNN(train_data, test_data, {'n': model_config['neibor']}, None)
     elif opt.model in ['NARM','FPMC','STAMP','MCPRN']:
         train_dataset = train_dataset.get_loader(model_config, shuffle=True)
         test_dataset = test_dataset.get_loader(model_config, shuffle=False)
@@ -74,7 +79,9 @@ def test():
 
     model.fit(train_dataset)
 
-    res_dir = f'res/sample{opt.sample_num}/{opt.dataset}/'
+    res_dir = f'res/sample_{opt.sample_num}/{opt.dataset}/'
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
     f = open(res_dir + f'result_{opt.dataset}_{opt.model}_{opt.seed}.txt', 'a')
     for k in [1,5,10]:
         line = f'HR@{k}\tNDCG@{k}\tMAP@{k}\n'

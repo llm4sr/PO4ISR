@@ -1,4 +1,5 @@
 import logging
+import os
 
 ACC_KPI = ['ndcg', 'mrr', 'hr']
 LOG_DIR = './log/'
@@ -6,7 +7,8 @@ LOG_DIR = './log/'
 def get_logger(file_name):
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.DEBUG)
-
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
     # set two handlers
     log_file = LOG_DIR+file_name + '.log'
 

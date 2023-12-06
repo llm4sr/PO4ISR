@@ -11,6 +11,16 @@ Dataset_setting = {
 }
 
 Model_setting = {
+    'MostPop':{
+        'model_dir': 'mostpop',
+        'pop_n': 100,
+        'description': 'MostPop',
+    },
+    'SKNN':{
+        'modir_dir':'sknn',
+        'neibor': 50,
+        'description': 'SKNN',
+    },
     'GCE-GNN': {
         'model_dir': 'gcegnn',
         'dataloader':'GCEDataset',
@@ -239,6 +249,28 @@ HyperParameter_setting = {
 }
 
 Best_setting = {
+    'MostPop':{
+        'bundle':{
+            'pop_n':100,
+        },
+        'games':{
+            'pop_n':100,
+        },
+        'ml-1m':{
+            'pop_n':100,
+        },
+    },
+    'SKNN':{
+        'bundle':{
+            'neibor':50,
+        },
+        'games':{
+            'neibor':50,
+        },
+        'ml-1m':{
+            'neibor':50,
+        },
+    },
     'GCE-GNN': {
         'bundle':{
             'epochs':100,
