@@ -1,6 +1,7 @@
 import json
 import argparse
 import re
+import os
 import numpy as np
 
 def extract_item(string, size, use_test=False):
@@ -32,6 +33,8 @@ if __name__ == '__main__':
     
     candidate_id = []
     save_path = './final_dataset/ID/'
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     data_session = []
     for sess_idx, lst in enumerate(train):
         session_list = extract_item(lst['input'], args.candidate_size, use_test=False)

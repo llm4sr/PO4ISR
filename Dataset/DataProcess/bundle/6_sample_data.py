@@ -54,4 +54,4 @@ if __name__ == '__main__':
         candidates.append(ids)
     
     np.save(f"./final_dataset/ID/valid_itemnum_{len(item_map)}_sample_{sample_num}_bundle.npy", valid_sample_id)
-    np.save(f"./amz/ID/valid_sample_{sample_num}_candidate_bundle.npy", candidates)
+    np.save(f"./final_dataset/ID/valid_sample_{sample_num}_candidate_bundle.npy", candidates)
