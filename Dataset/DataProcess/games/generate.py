@@ -4,9 +4,46 @@ import random
 import csv
 import json
 import re
+import gzip
 import os
-from tqdm import tqdm
 from datetime import datetime
+from tqdm import tqdm
+
+def parse(path):
+    g = gzip.open(path, 'rb')
+    for l in g:
+        yield json.loads(l)
+
+def getDF(path):
+    i = 0
+    df = {}
+    for d in parse(path):
+        tmp = {'user':d['reviewerID'], 'item':d['asin'], 'timestamp':d['unixReviewTime']}
+        df[i] = tmp
+        i += 1
+    return pd.DataFrame.from_dict(df, orient='index')
+
+character_set_to_replace_str = {
+    "&amp;": " and ", 
+    "&lt;": "", 
+    "&gt;": "", 
+    "&ndash": "", 
+    "&mdash;": "", 
+    "&ensp;": "", 
+    "&nbsp;": " ", 
+    "&shy;": "", 
+    "&copy;": "", 
+    "&trade;": "", 
+    "&reg;": "",
+    "&quot;": ""
+    }
+
+def title_process(name):
+    name = name.strip()
+    name = name.strip("'")
+    name = name.strip('"')
+    
+    return name
 
 def last_index(lst, element):
     for i in range(len(lst)-1, -1, -1):
@@ -49,7 +86,7 @@ def get_candiate_set(session, target, candidate_size, item_set):
 def get_text(item_lst, title):
     text = []
     for item in item_lst:
-        text.append(title[title['movie_id']==item].values[0][1].split(' (')[0])
+        text.append(title[title['item_id']==item].values[0][1])
     return text
 
 def construct_train_val_text(title, dataset_id, item_set, candidate_size):
@@ -59,7 +96,7 @@ def construct_train_val_text(title, dataset_id, item_set, candidate_size):
         session_text = get_text(data['session'][:-1], title)
         input_session_string = ",".join([f'{index+1}."{item}"' for index, item in enumerate(session_text)])
         target_item = data['session'][-1]
-        target_item_text = title[title['movie_id']==target_item].values[0][1].split(' (')[0]
+        target_item_text = title[title['item_id']==target_item].values[0][1]
         candidate_text = []
         candiate_set = get_candiate_set(data['session'][:-1], target_item, candidate_size, item_set)
         candidates.append(candiate_set)
@@ -76,46 +113,44 @@ if __name__ == '__main__':
     seed = 42
     random.seed(seed)
     sample_num = 150
-    rating = pd.read_csv(f'./raw_data/ratings.dat', sep='::', header=None, 
-                         names=['user', 'item', 'rating', 'timestamp'], engine='python')
-    title =  pd.read_csv(f'./ml-1m/movies.dat', sep='::', header=None, 
-                         names=['movie_id', 'title', 'genre'], engine='python', encoding='ISO-8859-1')
-    
-    filter_num = 5
-    tmp1 = rating.groupby(['item'], as_index=False)['user'].count()
-    tmp1.rename(columns={'user': 'cnt_user'}, inplace=True)
-    rating = rating.merge(tmp1, on=['item'])
-    rating = rating.query(f'cnt_user >= {filter_num}').reset_index(drop=True).copy()
-    rating.drop(['cnt_user'], axis=1, inplace=True)
+    path = './raw_data/Video_Games_5.json.gz'
+    rating = getDF(path)
+    path = './raw_data/meta_Video_Games.json.gz'
+    title = getDF(path)
 
-    item_set = set(rating['item'])
+    item_ids = set(title["item_id"].unique())
+    processed_rating = rating[rating["item"].isin(item_ids)].reset_index(drop=True)
 
+    for character_set, replace_str in character_set_to_replace_str.items(): 
+        title["title"] = title["title"].str.replace(character_set, replace_str)
+    title["title"] = title["title"].apply(title_process)
+
+    grouped = processed_rating.groupby('user')
     interaction_dicts = dict()
-    for _, row in rating.iterrows():
-        user_id = int(row['user'])
-        item_id = int(row['item'])
-        timestamp = int(row['timestamp'])
-    
-        if user_id not in interaction_dicts:
-            interaction_dicts[user_id] = {
+    for user, group in tqdm(grouped):
+        if len(group) <= 1:
+            continue
+        temp = {
                 'item_id':[],
                 'timestamp':[],
-                'item_title':[],
             }
-        interaction_dicts[user_id]['item_id'].append(item_id)
-        interaction_dicts[user_id]['timestamp'].append(timestamp)
-        item_title = title[title['movie_id']==item_id]['title'].values[0].split(' (')[0]
-        interaction_dicts[user_id]['item_title'].append(item_title)
+        for _, row in group.iterrows():
+            user_id = str(row['user'])
+            item_id = str(row['item'])
+            timestamp = row['timestamp']
+            
+            temp['item_id'].append(item_id)
+            temp['timestamp'].append(timestamp)
+        interaction_dicts[user] = temp
     
-
     sessions_id = {}
     s_id = 0
-    window_size = 20
+    window_size = 10
     for user_id in tqdm(interaction_dicts):
-        temp = zip(interaction_dicts[user_id]['item_id'], interaction_dicts[user_id]['timestamp'], interaction_dicts[user_id]['item_title'])
+        temp = zip(interaction_dicts[user_id]['item_id'], interaction_dicts[user_id]['timestamp'])
         temp = sorted(temp, key=lambda x: x[1])
         result = zip(*temp)
-        item_id, timestamps, item_title = [list(_) for _ in result]
+        item_id, timestamps = [list(_) for _ in result]
         session_timestamps = split_by_timestamp(timestamps)
         for session_timestamp in session_timestamps:
             start_idx = timestamps.index(session_timestamp[0])
@@ -138,8 +173,8 @@ if __name__ == '__main__':
     for i, (k, v) in enumerate(sorted_dict.items()):
         if v['session'] != []:
             final_sessions_id.append(v)
-
-    rating_id = rating.copy()
+    
+    rating_id = processed_rating.copy()
     rating_id['original_item'] = rating_id['item']
     rating_id['item'] = rating_id.groupby('item').ngroup()
     item_mapping = rating_id.set_index('original_item')['item'].to_dict()
@@ -151,18 +186,19 @@ if __name__ == '__main__':
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    np.save('./final_dataset/item_map_ml-1m.npy', item_mapping)
-    np.save('./final_dataset/ID/total_id_ml-1m.npy', final_sessions_id)
+    np.save('./final_dataset/item_map_games.npy', item_mapping)
+    np.save('./final_dataset/ID/total_id_games.npy', final_sessions_id)
 
     train_id = final_sessions_id[:int(len(final_sessions_id)*0.8)]
     valid_id = final_sessions_id[int(len(final_sessions_id)*0.8):int(len(final_sessions_id)*0.9)]
     test_id = final_sessions_id[int(len(final_sessions_id)*0.9):]
+    item_set = set(processed_rating['item'])
+    np.save(f'./final_dataset/ID/train_itemnum_{len(item_mapping)}_games.npy', train_id)
 
-    np.save(f'./final_dataset/ID/train_itemnum_{len(item_mapping)}_ml-1m.npy', train_id)
     train_sample_id = random.sample(train_id, sample_num)
     reindex_train_sample_id = reindex_data(train_sample_id, item_mapping)
+    np.save(f'./final_dataset/ID/train_itemnum_{len(item_mapping)}_sample_{sample_num}_games.npy', reindex_train_sample_id)
 
-    np.save(f'./final_dataset/ID/train_itemnum_{len(item_mapping)}_sample_{sample_num}_ml-1m.npy', reindex_train_sample_id)
     train_sample_text, _ = construct_train_val_text(title, train_sample_id, item_set, candidate_size=20)
     with open(f'./final_dataset/LLM/train_{sample_num}.json', 'w') as json_file:
         json.dump(train_sample_text, json_file)
@@ -170,7 +206,7 @@ if __name__ == '__main__':
     sample_num = 1000
     valid_sample_id = random.sample(valid_id, sample_num)
     reindex_valid_sample_id = reindex_data(valid_sample_id, item_mapping)
-    np.save(f'./final_dataset/ID/valid_itemnum_{len(item_mapping)}_sample_{sample_num}_ml-1m.npy', reindex_valid_sample_id)
+    np.save(f'./final_dataset/ID/valid_itemnum_{len(item_mapping)}_sample_{sample_num}_games.npy', reindex_valid_sample_id)
 
     valid_sample_text, valid_cand_id = construct_train_val_text(title, valid_sample_id, item_set, candidate_size=20)
     with open(f'./final_dataset/LLM/valid_{sample_num}.json', 'w') as json_file:
@@ -179,7 +215,7 @@ if __name__ == '__main__':
     reindex_valid_cand_id = []
     for data in valid_cand_id:
         reindex_valid_cand_id.append([item_mapping[i] for i in data])
-    np.save(f'./final_dataset/ID/valid_candidate_sample_1000_ml-1m.npy', reindex_valid_cand_id)
+    np.save(f'./final_dataset/ID/valid_candidate_sample_1000_games.npy', reindex_valid_sample_id)
 
     valid_sample_100 = random.sample(valid_sample_text, 100)
     with open(f'./final_dataset/LLM/valid_100.json', 'w') as json_file:
@@ -188,7 +224,7 @@ if __name__ == '__main__':
     sample_num = 1000
     test_sample_id = random.sample(test_id, sample_num)
     reindex_test_sample_id = reindex_data(test_sample_id, item_mapping)
-    np.save(f'./final_dataset/ID/test_itemnum_{len(item_mapping)}_sample_{sample_num}_ml-1m.npy', reindex_test_sample_id)
+    np.save(f'./final_dataset/ID/test_itemnum_{len(item_mapping)}_sample_{sample_num}_games.npy', reindex_test_sample_id)
 
     seeds = [0, 10, 42, 625, 2023]
     for seed in seeds:
@@ -197,9 +233,7 @@ if __name__ == '__main__':
         reindex_test_cand_id = []
         for data in test_cand_id:
             reindex_test_cand_id.append([item_mapping[i] for i in data])
-        np.save(f'./final_dataset/ID/test_candidate_{seed}_ml-1m.npy', reindex_test_cand_id)
+        np.save(f'./final_dataset/ID/test_candidate_{seed}_games.npy', reindex_test_cand_id)
         
         with open(f'./final_dataset/LLM/test_seed_{seed}.json', 'w') as json_file:
             json.dump(test_sample_text, json_file)
-    
-    
