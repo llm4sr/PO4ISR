@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import random
-import csv
 import json
-import re
 import os
 from tqdm import tqdm
 from datetime import datetime
@@ -162,7 +160,7 @@ if __name__ == '__main__':
     train_sample_id = random.sample(train_id, sample_num)
     reindex_train_sample_id = reindex_data(train_sample_id, item_mapping)
     np.save(f'./final_dataset/ID/train_itemnum_{len(item_mapping)}_sample_{sample_num}_ml-1m.npy', reindex_train_sample_id)
-    
+
     train_sample_text, _ = construct_train_val_text(title, train_sample_id, item_set, candidate_size=20)
     with open(f'./final_dataset/LLM/train_{sample_num}.json', 'w') as json_file:
         json.dump(train_sample_text, json_file)

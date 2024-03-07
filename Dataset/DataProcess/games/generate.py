@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import random
-import csv
 import json
-import re
 import gzip
 import os
 from datetime import datetime
