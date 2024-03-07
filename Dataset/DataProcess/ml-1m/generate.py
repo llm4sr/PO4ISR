@@ -78,7 +78,7 @@ if __name__ == '__main__':
     sample_num = 150
     rating = pd.read_csv(f'./raw_data/ratings.dat', sep='::', header=None, 
                          names=['user', 'item', 'rating', 'timestamp'], engine='python')
-    title =  pd.read_csv(f'./ml-1m/movies.dat', sep='::', header=None, 
+    title =  pd.read_csv(f'./raw_data/movies.dat', sep='::', header=None, 
                          names=['movie_id', 'title', 'genre'], engine='python', encoding='ISO-8859-1')
     
     filter_num = 5
