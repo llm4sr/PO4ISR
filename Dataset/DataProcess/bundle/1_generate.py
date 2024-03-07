@@ -138,7 +138,7 @@ if __name__ == '__main__':
             test_set.append(data_text_dict[str(session)])
     
 
-    save_path = f"./text_dataset/LLM/"
+    save_path = f"./final_dataset/LLM/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
